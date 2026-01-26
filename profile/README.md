@@ -1,6 +1,6 @@
 # Net2Share
 
-We are a group of independent developers working to bring light to Iran and help people stay connected during the ongoing digital blackout. **You are not alone!**
+We are a group of independent developers working to bring light to Iran and help people stay connected during the ongoing digital blackout. **You are not alone!** 🫂
 
 While our current focus is on supporting the people of Iran, Net2Share is dedicated to enabling internet access for users in any highly restricted and censored networks around the world.
 
@@ -52,7 +52,10 @@ DNS tunneling encapsulates data within DNS queries and responses, allowing traff
 A comprehensive tool for deploying and managing DNS tunnel server infrastructure on Linux.
 
 - Install and configure DNS tunnel transports (Slipstream, DNSTT)
-- Deploy Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks server or sing-box core
+- Deploy Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks server
+- Run multiple transport instances with different domain sets, load balanced via a local DNS proxy. Each instance can handle different traffic types (VLESS+WS, SOCKS, etc.) with multi-domain support
+- Custom target port configuration for standalone transport modes
+- Set up health check instances with multi-domain support for Slipstream and DNSTT, used by client-side dnst-resolver-scanner for end-to-end validation, with domain-based routing via the DNS proxy
 - Set up SOCKS proxy using microsocks
 - Manage users and hardened policies for SSH tunnels
 
@@ -61,8 +64,9 @@ A comprehensive tool for deploying and managing DNS tunnel server infrastructure
 A cross-platform client tool for connecting to DNS tunnel servers from restricted networks. Supports Windows, macOS, and Linux — _coming soon._
 
 - Download and configure Slipstream and DNSTT in standalone mode
-- Install Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks client or sing-box
+- Install Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks client
 - Discover working recursive DNS resolver IPs using dnst-resolver-scanner
+- Continuously monitor resolver health and maintain a pool of working resolvers in the DNS proxy
 - Run a local DNS proxy with load balancing across multiple resolvers
 - Orchestrate the entire flow between scanner, DNS proxy, and transport
 
@@ -102,6 +106,9 @@ A fork of DNSTT with improvements tailored for the current Iranian network condi
 
 A work-in-progress tool designed to scan and identify recursive DNS servers in Iran that are compatible with DNS tunneling. The goal is to provide an end-to-end solution for finding working resolver IPs that can be used to establish DNS tunnels like DNSTT and Slipstream.
 
+- Two-step scanning: first scan the raw resolver list to find working recursive resolvers
+- End-to-end validation: test working resolvers with actual transport protocols (Slipstream, DNSTT) to verify they can establish real tunnels
+
 #### [microsocks-build](https://github.com/net2share/microsocks-build)
 
 Automated builds of the lightweight microsocks SOCKS5 proxy server. This repository monitors the upstream project daily and produces statically-linked binaries for multiple architectures (x86_64, i686, ARM64, ARM) using musl libc—resulting in portable executables that work across different Linux systems without dependency headaches. dnstm fetches the latest binaries directly from this project's release artifacts.
@@ -119,9 +126,20 @@ flowchart TB
         A[Install & Configure]
     end
 
-    subgraph transports["DNS Tunnel Transports"]
-        B[Slipstream]
-        C[DNSTT]
+    subgraph dns_proxy_server["DNS Proxy (Port 53)"]
+        P[Domain-Based Router]
+    end
+
+    subgraph transports["Transport Instances"]
+        subgraph prod["Production Tunnels"]
+            B1[Slipstream Instance 1<br/>domains: t1.example.com]
+            B2[Slipstream Instance 2<br/>domains: t2.example.com]
+            C1[DNSTT Instance<br/>domains: d.example.com]
+        end
+        subgraph health["Health Check Instances"]
+            H1[Slipstream Health<br/>domains: hc-s.example.com]
+            H2[DNSTT Health<br/>domains: hc-d.example.com]
+        end
     end
 
     subgraph modes["Connection Modes"]
@@ -129,14 +147,13 @@ flowchart TB
         E[Shadowsocks SIP003 Plugin]
     end
 
-    subgraph shadowsocks["Shadowsocks Stack"]
-        F[Shadowsocks Server]
-        G[sing-box Core]
+    subgraph shadowsocks["Shadowsocks Server"]
+        F[shadowsocks-rust]
     end
 
     subgraph usermgmt["User Management"]
-        H[sshtun-user]
-        I[microsocks]
+        M[sshtun-user]
+        N[microsocks]
     end
 
     subgraph artifacts["Binary Sources"]
@@ -145,14 +162,18 @@ flowchart TB
         L[microsocks-build]
     end
 
-    dnstm --> transports
-    transports --> modes
+    dnstm --> dns_proxy_server
+    dns_proxy_server -->|route by domain| transports
+    prod --> modes
+    health -->|e2e validation endpoint| modes
     E --> shadowsocks
     dnstm --> usermgmt
 
-    J -.->|fetches binaries| B
-    K -.->|fetches binaries| C
-    L -.->|fetches binaries| I
+    J -.->|fetches binaries| prod
+    J -.->|fetches binaries| health
+    K -.->|fetches binaries| C1
+    K -.->|fetches binaries| H2
+    L -.->|fetches binaries| N
 ```
 
 ### Client-Side Architecture
@@ -161,14 +182,17 @@ The client runs inside the restricted network and orchestrates the connection fl
 
 ```mermaid
 flowchart TB
-    subgraph resolver_discovery["Resolver Discovery"]
-        A[ir-resolvers]
-        B[dnst-resolver-scanner]
+    subgraph scanner["dnst-resolver-scanner"]
+        direction TB
+        A[ir-resolvers<br/>Raw IP List]
+        S1[Step 1: Basic Scan<br/>Find working resolvers]
+        S2[Step 2: E2E Validation<br/>Test with actual tunnels]
     end
 
     subgraph dns_proxy["Local DNS Proxy"]
         C[Load Balancer]
-        D[Multiple Working Resolvers]
+        D[Healthy Resolver Pool]
+        MON[Health Monitor<br/>Continuous checking]
     end
 
     subgraph client["dnstclient"]
@@ -185,10 +209,20 @@ flowchart TB
         I[Browser / Apps]
     end
 
-    A -->|raw IP list| B
-    B -->|working resolvers| C
-    C --> D
-    E --> resolver_discovery
+    subgraph remote["Server Health Check Instances"]
+        R1[Slipstream Health Endpoint]
+        R2[DNSTT Health Endpoint]
+    end
+
+    A -->|raw IPs| S1
+    S1 -->|responding resolvers| S2
+    S2 -->|tunnel-capable resolvers| D
+    S2 -.->|e2e test via| R1
+    S2 -.->|e2e test via| R2
+    MON -->|update pool| D
+    MON -.->|periodic check| R1
+    MON -.->|periodic check| R2
+    E --> scanner
     E --> dns_proxy
     E --> transports
     transports -->|tunnel via| D
