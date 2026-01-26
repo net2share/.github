@@ -18,10 +18,10 @@ DNS tunneling encapsulates data within DNS queries and responses, allowing traff
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                         Restricted Network (Iran)                        │
 │                                                                          │
-│   ┌────────────┐    DNS Queries         ┌───────────────────┐            │
-│   │   Client   │  ──────────────────► │ Recursive DNS     │            │
-│   │(dnstclient)│  ◄────────────────── │ Resolver (Iran)   │            │
-│   └────────────┘    DNS Responses       └─────────┬─────────┘            │
+│   ┌────────────┐      DNS Queries       ┌───────────────────┐            │
+│   │   Client   │ ─────────────────────► │ Recursive DNS     │            │
+│   │(dnstclient)│ ◄───────────────────── │ Resolver (Iran)   │            │
+│   └────────────┘      DNS Responses     └─────────┬─────────┘            │
 │                                                   │                      │
 └───────────────────────────────────────────────────┼──────────────────────┘
                                                     │
