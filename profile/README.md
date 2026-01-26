@@ -69,7 +69,8 @@ A cross-platform client tool for connecting to DNS tunnel servers from restricte
 - Discover working recursive DNS resolver IPs using dnst-resolver-scanner
 - Continuously monitor resolver health and maintain a pool of working resolvers in the DNS proxy
 - Run a local DNS proxy with load balancing across multiple resolvers
-- Orchestrate the entire flow between scanner, DNS proxy, and transport
+- Run multiple transport instances with load balancing across them for higher aggregate bandwidth
+- Orchestrate the entire flow between scanner, DNS proxy, and transports
 
 #### [DNS Tunnel Resolver Scanner (dnst-resolver-scanner)](https://github.com/net2share/dnst-resolver-scanner)
 
@@ -209,10 +210,14 @@ flowchart TB
         E[Orchestrator]
     end
 
-    subgraph transports["Transport Options"]
-        F[Slipstream Standalone]
-        G[DNSTT Standalone]
-        H[Slipstream + Shadowsocks]
+    subgraph transport_proxy["Transport Load Balancer"]
+        TLB[Load Balancer<br/>Higher aggregate bandwidth]
+    end
+
+    subgraph transports["Transport Instances"]
+        T1[Slipstream Instance 1]
+        T2[Slipstream Instance 2]
+        T3[DNSTT Instance]
     end
 
     subgraph apps["Applications"]
@@ -234,9 +239,11 @@ flowchart TB
     MON -.->|periodic check| R2
     E --> scanner
     E --> dns_proxy
+    E --> transport_proxy
     E --> transports
+    I -->|traffic| TLB
+    TLB --> transports
     transports -->|tunnel via| D
-    I -->|traffic| transports
 ```
 
 ### Project Dependencies
