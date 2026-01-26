@@ -20,7 +20,7 @@ DNS tunneling encapsulates data within DNS queries and responses, allowing traff
 │                                                                          │
 │   ┌────────────┐      DNS Queries       ┌───────────────────┐            │
 │   │   Client   │ ─────────────────────► │ Recursive DNS     │            │
-│   │(dnstclient)│ ◄───────────────────── │ Resolver (Iran)   │            │
+│   │  (dnstc)   │ ◄───────────────────── │ Resolver (Iran)   │            │
 │   └────────────┘      DNS Responses     └─────────┬─────────┘            │
 │                                                   │                      │
 └───────────────────────────────────────────────────┼──────────────────────┘
@@ -60,7 +60,7 @@ A comprehensive tool for deploying and managing DNS tunnel server infrastructure
 - Set up SOCKS proxy using microsocks
 - Manage users and hardened policies for SSH tunnels
 
-#### [DNS Tunnel Client (dnstclient)](https://github.com/net2share/dnstclient)
+#### [DNS Tunnel Client (dnstc)](https://github.com/net2share/dnstc)
 
 A cross-platform client tool for connecting to DNS tunnel servers from restricted networks. Supports Windows, macOS, and Linux — _coming soon._
 
@@ -84,7 +84,7 @@ A curated list of potential recursive DNS server IP addresses available within I
 
 #### [Slipstream Shadowsocks Android Plugin](https://github.com/net2share/slipstream-plugin-android)
 
-A fork of the upstream [slipstream-plugin-android](https://github.com/Mygod/slipstream-plugin-android) project. The goal is to bring similar functionality to dnstclient on Android, including DNS resolver scanning and seamless integration with the Shadowsocks app.
+A fork of the upstream [slipstream-plugin-android](https://github.com/Mygod/slipstream-plugin-android) project. The goal is to bring similar functionality to dnstc on Android, including DNS resolver scanning and seamless integration with the Shadowsocks app.
 
 #### [SSH Tunnel User Manager (sshtun-user)](https://github.com/net2share/sshtun-user)
 
@@ -92,7 +92,7 @@ A security-focused utility for creating and managing restricted SSH users on Lin
 
 #### [go-corelib](https://github.com/net2share/go-corelib)
 
-Our shared Go library that powers the CLI tools above. It provides OS detection, automatic package manager identification, and beautiful terminal output with consistent styling. Used by dnstm, dnstclient, and sshtun-user. Any component or logic shared across multiple projects is abstracted and centralized here.
+Our shared Go library that powers the CLI tools above. It provides OS detection, automatic package manager identification, and beautiful terminal output with consistent styling. Used by dnstm, dnstc, and sshtun-user. Any component or logic shared across multiple projects is abstracted and centralized here.
 
 #### [Net2Share Website (net2share.github.io)](https://github.com/net2share/net2share.github.io)
 
@@ -205,7 +205,7 @@ flowchart TB
         MON[Health Monitor<br/>Continuous checking]
     end
 
-    subgraph client["dnstclient"]
+    subgraph client["dnstc"]
         E[Orchestrator]
     end
 
@@ -251,7 +251,7 @@ flowchart LR
 
     subgraph tools["Management Tools"]
         B[dnstm]
-        B2[dnstclient]
+        B2[dnstc]
         C[sshtun-user]
         D[dnst-resolver-scanner]
     end
