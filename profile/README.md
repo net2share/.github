@@ -301,9 +301,20 @@ Contributions are not just welcomed—they are **urgently needed** by our team a
 
 - **Explore the projects**: Check all the repositories listed above, review open issues, pull requests, and discussions
 - **Build and test**: Clone the projects, build them locally, and help identify bugs or edge cases
-- **Report issues**: Create new issues for bugs you encounter, feature requests, or new ideas
+- **Report issues**: Create new issues for bugs you encounter, feature requests, or propose new ideas
 - **Code contributions**: Pick up open issues and help with design and implementation, or review open PRs and provide feedback
 - **Documentation**: Help improve documentation, write guides, or translate content
+
+### Working with Issues
+
+Issue descriptions and proposed designs are **drafts and initial ideas**. Before implementing:
+
+1. **Reply to the issue** to let the team know you're picking it up
+2. **Build a manual PoC** to validate the configuration and flow before writing code
+3. **Add comments** to refine the design, ask questions, or propose alternatives
+4. **Update the issue** with your findings and any design changes
+
+If you notice a missing piece, find a bug, or have a new feature idea, feel free to **create a new issue**.
 
 ### A Note on Code Quality
 
