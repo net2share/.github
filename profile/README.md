@@ -55,7 +55,7 @@ A comprehensive tool for deploying and managing DNS tunnel server infrastructure
 - Deploy Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks server
 - Run multiple transport instances with different domain sets, load balanced via a local DNS proxy. Each instance can handle different traffic types (VLESS+WS, SOCKS, etc.) with multi-domain support
 - Custom target port configuration for standalone transport modes
-- Set up health check instances with multi-domain support for Slipstream and DNSTT, used by client-side dnst-resolver-scanner for end-to-end validation, with domain-based routing via the DNS proxy
+- Set up health check instances with multi-domain support for Slipstream and DNSTT, used by client-side dnst-scanner for end-to-end validation, with domain-based routing via the DNS proxy
 - Deploy Telegram MTProxy behind DNS tunnels, allowing Telegram users to connect using native proxy settings without additional client software
 - Set up SOCKS proxy using microsocks
 - Manage users and hardened policies for SSH tunnels
@@ -66,13 +66,13 @@ A cross-platform client tool for connecting to DNS tunnel servers from restricte
 
 - Download and configure Slipstream and DNSTT in standalone mode
 - Install Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks client
-- Discover working recursive DNS resolver IPs using dnst-resolver-scanner
+- Discover working recursive DNS resolver IPs using dnst-scanner
 - Continuously monitor resolver health and maintain a pool of working resolvers in the DNS proxy
 - Run a local DNS proxy with load balancing across multiple resolvers
 - Run multiple transport instances with load balancing across them for higher aggregate bandwidth
 - Orchestrate the entire flow between scanner, DNS proxy, and transports
 
-#### [DNS Tunnel Resolver Scanner (dnst-resolver-scanner)](https://github.com/net2share/dnst-resolver-scanner)
+#### [DNS Tunnel Resolver Scanner (dnst-scanner)](https://github.com/net2share/dnst-scanner)
 
 A tool designed to scan and identify recursive DNS servers in Iran that are compatible with DNS tunneling. Provides an end-to-end solution for finding working resolver IPs that can be used to establish DNS tunnels like DNSTT and Slipstream.
 
@@ -81,7 +81,7 @@ A tool designed to scan and identify recursive DNS servers in Iran that are comp
 
 #### [Iran Resolvers (ir-resolvers)](https://github.com/net2share/ir-resolvers)
 
-A curated list of potential recursive DNS server IP addresses available within Iran's intranet (Filternet). dnst-resolver-scanner fetches its initial raw list from this repository.
+A curated list of potential recursive DNS server IP addresses available within Iran's intranet (Filternet). dnst-scanner fetches its initial raw list from this repository.
 
 #### [Slipstream Shadowsocks Android Plugin](https://github.com/net2share/slipstream-plugin-android)
 
@@ -193,7 +193,7 @@ The client runs inside the restricted network and orchestrates the connection fl
 
 ```mermaid
 flowchart TB
-    subgraph scanner["dnst-resolver-scanner"]
+    subgraph scanner["dnst-scanner"]
         direction TB
         A[ir-resolvers<br/>Raw IP List]
         S1[Step 1: Basic Scan<br/>Find working resolvers]
@@ -260,7 +260,7 @@ flowchart LR
         B[dnstm]
         B2[dnstc]
         C[sshtun-user]
-        D[dnst-resolver-scanner]
+        D[dnst-scanner]
     end
 
     subgraph data["Data Sources"]
