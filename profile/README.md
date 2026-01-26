@@ -70,13 +70,20 @@ A cross-platform client tool for connecting to DNS tunnel servers from restricte
 - Run a local DNS proxy with load balancing across multiple resolvers
 - Orchestrate the entire flow between scanner, DNS proxy, and transport
 
-#### [Slipstream Shadowsocks Android Plugin](https://github.com/net2share/slipstream-plugin-android)
+#### [DNS Tunnel Resolver Scanner (dnst-resolver-scanner)](https://github.com/net2share/dnst-resolver-scanner)
 
-A fork of the upstream [slipstream-plugin-android](https://github.com/Mygod/slipstream-plugin-android) project. The goal is to bring similar functionality to dnstclient on Android, including DNS resolver scanning and seamless integration with the Shadowsocks app.
+A tool designed to scan and identify recursive DNS servers in Iran that are compatible with DNS tunneling. Provides an end-to-end solution for finding working resolver IPs that can be used to establish DNS tunnels like DNSTT and Slipstream.
+
+- Two-step scanning: first scan the raw resolver list to find working recursive resolvers
+- End-to-end validation: test working resolvers with actual transport protocols (Slipstream, DNSTT) to verify they can establish real tunnels
 
 #### [Iran Resolvers (ir-resolvers)](https://github.com/net2share/ir-resolvers)
 
 A curated list of potential recursive DNS server IP addresses available within Iran's intranet (Filternet). dnst-resolver-scanner fetches its initial raw list from this repository.
+
+#### [Slipstream Shadowsocks Android Plugin](https://github.com/net2share/slipstream-plugin-android)
+
+A fork of the upstream [slipstream-plugin-android](https://github.com/Mygod/slipstream-plugin-android) project. The goal is to bring similar functionality to dnstclient on Android, including DNS resolver scanning and seamless integration with the Shadowsocks app.
 
 #### [SSH Tunnel User Manager (sshtun-user)](https://github.com/net2share/sshtun-user)
 
@@ -85,6 +92,15 @@ A security-focused utility for creating and managing restricted SSH users on Lin
 #### [go-corelib](https://github.com/net2share/go-corelib)
 
 Our shared Go library that powers the CLI tools above. It provides OS detection, automatic package manager identification, and beautiful terminal output with consistent styling. Used by dnstm, dnstclient, and sshtun-user. Any component or logic shared across multiple projects is abstracted and centralized here.
+
+#### [Net2Share Website (net2share.github.io)](https://github.com/net2share/net2share.github.io)
+
+The official documentation website for Net2Share, hosted at [net2share.com](https://net2share.com). Built with mkdocs-material, it provides comprehensive guides for setting up and using DNS tunnel infrastructure.
+
+- Step-by-step server setup guides for dnstm in English and Farsi
+- Client setup guides for Windows, macOS, and Linux
+- Troubleshooting and FAQ sections
+- Project documentation and architecture overviews
 
 ### DNS Tunnel Implementations
 
@@ -101,13 +117,6 @@ A mirror of the original DNSTT project with pre-compiled binaries available in G
 A fork of DNSTT with improvements tailored for the current Iranian network conditions. This project is currently in the R&D phase with some promising results, aiming to extend the original implementation while preserving its strong cryptographic guarantees.
 
 ### Utilities
-
-#### [DNS Tunnel Resolver Scanner (dnst-resolver-scanner)](https://github.com/net2share/dnst-resolver-scanner)
-
-A work-in-progress tool designed to scan and identify recursive DNS servers in Iran that are compatible with DNS tunneling. The goal is to provide an end-to-end solution for finding working resolver IPs that can be used to establish DNS tunnels like DNSTT and Slipstream.
-
-- Two-step scanning: first scan the raw resolver list to find working recursive resolvers
-- End-to-end validation: test working resolvers with actual transport protocols (Slipstream, DNSTT) to verify they can establish real tunnels
 
 #### [microsocks-build](https://github.com/net2share/microsocks-build)
 
