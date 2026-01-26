@@ -47,7 +47,10 @@ dnst-scanner scan --tunnel-domain t.example.com --e2e \
 
 ### Output
 
-Extends basic scan output with E2E results:
-- `e2e_slipstream`: true/false/skipped
-- `e2e_dnstt`: true/false/skipped
-- `e2e_latency_ms`: tunnel round-trip time
+Extends basic scan output with E2E results. See #5 (Output Formatters) for complete data structure.
+
+Key fields added per resolver:
+- `e2e.slipstream.domain`: health check domain used
+- `e2e.slipstream.success`: true/false
+- `e2e.slipstream.latency_ms`: tunnel round-trip time
+- `e2e.dnstt.*`: same structure for DNSTT

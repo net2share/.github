@@ -26,14 +26,14 @@ Test resolver IPs with connectivity checks and multi-domain DNS queries to ident
 
 ### Output
 
-Filter out non-responding IPs and non-DNS servers. For each working resolver, include:
+Filter out non-responding IPs and non-DNS servers. See #5 (Output Formatters) for complete data structure.
 
-- IP address
-- Response times for each query type
+Key fields per resolver:
+- IP address, ping and response times
 - Normal domain results (google.com, microsoft.com)
 - Blocked domain result (actual IP vs hijacked 10.x.x.x)
-- Tunnel domain resolution result (success/fail)
-- Classification: `clean` (properly resolves blocked domains) vs `censored` (hijacks)
+- Tunnel domain resolution result
+- Classification: `clean` vs `censored`
 
 ### Implementation Notes
 
