@@ -18,10 +18,10 @@ DNS tunneling encapsulates data within DNS queries and responses, allowing traff
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                         Restricted Network (Iran)                        │
 │                                                                          │
-│   ┌────────┐        DNS Queries         ┌───────────────────┐            │
-│   │ Client │  ────────────────────────► │ Recursive DNS     │            │
-│   │ (dnstm)│  ◄──────────────────────── │ Resolver (Iran)   │            │
-│   └────────┘        DNS Responses       └─────────┬─────────┘            │
+│   ┌────────────┐    DNS Queries         ┌───────────────────┐            │
+│   │   Client   │  ──────────────────► │ Recursive DNS     │            │
+│   │(dnstclient)│  ◄────────────────── │ Resolver (Iran)   │            │
+│   └────────────┘    DNS Responses       └─────────┬─────────┘            │
 │                                                   │                      │
 └───────────────────────────────────────────────────┼──────────────────────┘
                                                     │
@@ -49,16 +49,16 @@ DNS tunneling encapsulates data within DNS queries and responses, allowing traff
 
 #### [DNS Tunnel Manager (dnstm)](https://github.com/net2share/dnstm)
 
-A comprehensive tool for deploying and managing DNS tunnel infrastructure. Currently server-side functionality is available, with client support in development.
-
-**Server (Linux):**
+A comprehensive tool for deploying and managing DNS tunnel server infrastructure on Linux.
 
 - Install and configure DNS tunnel transports (Slipstream, DNSTT)
 - Deploy Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks server or sing-box core
 - Set up SOCKS proxy using microsocks
 - Manage users and hardened policies for SSH tunnels
 
-**Client (Windows, macOS, Linux)** — _coming soon:_
+#### [DNS Tunnel Client (dnstclient)](https://github.com/net2share/dnstclient)
+
+A cross-platform client tool for connecting to DNS tunnel servers from restricted networks. Supports Windows, macOS, and Linux — _coming soon._
 
 - Download and configure Slipstream and DNSTT in standalone mode
 - Install Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks client or sing-box
@@ -68,7 +68,7 @@ A comprehensive tool for deploying and managing DNS tunnel infrastructure. Curre
 
 #### [Slipstream Shadowsocks Android Plugin](https://github.com/net2share/slipstream-plugin-android)
 
-A fork of the upstream [slipstream-plugin-android](https://github.com/Mygod/slipstream-plugin-android) project. The goal is to bring similar functionality to the dnstm client on Android, including DNS resolver scanning and seamless integration with the Shadowsocks app.
+A fork of the upstream [slipstream-plugin-android](https://github.com/Mygod/slipstream-plugin-android) project. The goal is to bring similar functionality to dnstclient on Android, including DNS resolver scanning and seamless integration with the Shadowsocks app.
 
 #### [Iran Resolvers (ir-resolvers)](https://github.com/net2share/ir-resolvers)
 
@@ -80,7 +80,7 @@ A security-focused utility for creating and managing restricted SSH users on Lin
 
 #### [go-corelib](https://github.com/net2share/go-corelib)
 
-Our shared Go library that powers the CLI tools above. It provides OS detection, automatic package manager identification, and beautiful terminal output with consistent styling. Used by both dnstm and sshtun-user. Any component or logic shared across multiple projects is abstracted and centralized here.
+Our shared Go library that powers the CLI tools above. It provides OS detection, automatic package manager identification, and beautiful terminal output with consistent styling. Used by dnstm, dnstclient, and sshtun-user. Any component or logic shared across multiple projects is abstracted and centralized here.
 
 ### DNS Tunnel Implementations
 
@@ -171,7 +171,7 @@ flowchart TB
         D[Multiple Working Resolvers]
     end
 
-    subgraph client["dnstm (Client)"]
+    subgraph client["dnstclient"]
         E[Orchestrator]
     end
 
@@ -207,6 +207,7 @@ flowchart LR
 
     subgraph tools["Management Tools"]
         B[dnstm]
+        B2[dnstclient]
         C[sshtun-user]
         D[dnst-resolver-scanner]
     end
@@ -226,12 +227,15 @@ flowchart LR
     end
 
     A --> B
+    A --> B2
     A --> C
     C --> B
     E --> D
-    D --> B
+    D --> B2
     F --> B
+    F --> B2
     G --> B
+    G --> B2
     H --> B
 ```
 
