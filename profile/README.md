@@ -53,12 +53,13 @@ A comprehensive tool for deploying and managing DNS tunnel server infrastructure
 
 - Install and configure DNS tunnel transports (Slipstream, DNSTT)
 - Deploy Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks server
-- Run multiple transport instances with different domain sets, load balanced via a local DNS proxy. Each instance can handle different traffic types (VLESS+WS, SOCKS, etc.) with multi-domain support
+- Run multiple transport instances with different domain sets, load balanced via a local DNS proxy ([gost](https://github.com/go-gost/gost)). Each instance can handle different traffic types (VLESS+WS, SOCKS, etc.) with multi-domain support
 - Custom target port configuration for standalone transport modes
 - Set up health check instances with multi-domain support for Slipstream and DNSTT, used by client-side dnst-scanner for end-to-end validation, with domain-based routing via the DNS proxy
 - Deploy Telegram MTProxy behind DNS tunnels, allowing Telegram users to connect using native proxy settings without additional client software
 - Set up SOCKS proxy using microsocks
 - Manage users and hardened policies for SSH tunnels
+- Support binary path overrides via environment variables for development and custom deployments
 
 #### [DNS Tunnel Client (dnstc)](https://github.com/net2share/dnstc)
 
@@ -76,8 +77,10 @@ A cross-platform client tool for connecting to DNS tunnel servers from restricte
 
 A tool designed to scan and identify recursive DNS servers in Iran that are compatible with DNS tunneling. Provides an end-to-end solution for finding working resolver IPs that can be used to establish DNS tunnels like DNSTT and Slipstream.
 
-- Two-step scanning: first scan the raw resolver list to find working recursive resolvers
-- End-to-end validation: test working resolvers with actual transport protocols (Slipstream, DNSTT) to verify they can establish real tunnels
+- Two-step scanning: basic scan to find working resolvers, optional E2E validation with actual tunnels
+- Multi-domain testing: normal domains (google.com, microsoft.com), blocked domains (facebook.com, x.com), and custom tunnel domain
+- Resolver classification: `clean` (properly resolves blocked domains) vs `censored` (hijacks to 10.x.x.x)
+- E2E validation (optional): test resolvers with actual Slipstream/DNSTT client connections to health check endpoints
 
 #### [Iran Resolvers (ir-resolvers)](https://github.com/net2share/ir-resolvers)
 
