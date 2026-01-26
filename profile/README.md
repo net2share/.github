@@ -56,6 +56,7 @@ A comprehensive tool for deploying and managing DNS tunnel server infrastructure
 - Run multiple transport instances with different domain sets, load balanced via a local DNS proxy. Each instance can handle different traffic types (VLESS+WS, SOCKS, etc.) with multi-domain support
 - Custom target port configuration for standalone transport modes
 - Set up health check instances with multi-domain support for Slipstream and DNSTT, used by client-side dnst-resolver-scanner for end-to-end validation, with domain-based routing via the DNS proxy
+- Deploy Telegram MTProxy behind DNS tunnels, allowing Telegram users to connect using native proxy settings without additional client software
 - Set up SOCKS proxy using microsocks
 - Manage users and hardened policies for SSH tunnels
 
