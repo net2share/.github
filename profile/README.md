@@ -61,36 +61,32 @@ A CLI tool to deploy and manage DNS tunnel servers on Linux. Run single tunnels 
 - Firewall configuration (UFW, firewalld, iptables)
 - SSH tunnel user management via integrated sshtun-user
 
-#### [DNS Tunnel Client (dnstc)](https://github.com/net2share/dnstc) — _Coming Soon_
+#### [DNS Tunnel Client (dnstc)](https://github.com/net2share/dnstc)
 
 A cross-platform client tool for connecting to DNS tunnel servers from restricted networks. Supports Windows, macOS, and Linux.
 
-**Planned features:**
-- Download and configure Slipstream and DNSTT transports
-- Install Slipstream as a Shadowsocks SIP003 plugin with Shadowsocks client
-- Discover working recursive DNS resolver IPs using dnst-scanner
-- Continuously monitor resolver health and maintain a pool of working resolvers
-- Run a local DNS proxy with load balancing across multiple resolvers
-- Run multiple transport instances with load balancing for higher aggregate bandwidth
-- Orchestrate the entire flow between scanner, DNS proxy, and transports
+- Transports: Slipstream (TLS) and DNSTT (Curve25519), with SOCKS, SSH, and Shadowsocks (SIP003 plugin) backends
+- Daemon mode with IPC for background operation and systemd integration (Linux)
+- Single SOCKS gateway proxy that routes to the active tunnel
+- Local DNS proxy with health-aware upstream selection and latency-based routing
+- Tunnel import from `dnstm://` URLs for quick setup
+- Interactive TUI menu and full CLI support
+- Binary management with self-update and version tracking
 
-#### [DNS Tunnel Resolver Scanner (dnst-scanner)](https://github.com/net2share/dnst-scanner) — _Coming Soon_
+#### [DNS Tunnel Resolver Scanner (dnst-scanner)](https://github.com/net2share/dnst-scanner)
 
-A tool designed to scan and identify recursive DNS servers in Iran that are compatible with DNS tunneling. Provides an end-to-end solution for finding working resolver IPs that can be used to establish DNS tunnels like DNSTT and Slipstream.
+A tool for scanning and filtering recursive DNS servers in Iran to find those compatible with DNS tunneling. Takes a raw list of resolver IPs and produces a ranked set of tunnel-capable resolvers.
 
-**Planned features:**
-- Two-step scanning: basic scan to find working resolvers, optional E2E validation with actual tunnels
-- Multi-domain testing: normal domains (google.com, microsoft.com), blocked domains (facebook.com, x.com), and custom tunnel domain
-- Resolver classification: `clean` (properly resolves blocked domains) vs `censored` (hijacks to 10.x.x.x)
-- E2E validation (optional): test resolvers with actual Slipstream/DNSTT client connections
+- Pipeline-based scanning: ping, DNS resolve, NS delegation check, and E2E tunnel validation
+- Chain mode for multi-step sequential filtering with in-memory result passing between steps
+- E2E validation with actual DNSTT and Slipstream tunnel connections
+- Concurrent processing with configurable worker pool
+- Latency metrics tracking and ranking across all scan steps
+- Flexible input/output with text and JSON formats
 
 #### [Iran Resolvers (ir-resolvers)](https://github.com/net2share/ir-resolvers)
 
 A curated list of potential recursive DNS server IP addresses available within Iran's intranet (Filternet). dnst-scanner fetches its initial raw list from this repository.
-
-#### [Slipstream Shadowsocks Android Plugin](https://github.com/net2share/slipstream-plugin-android)
-
-A fork of the upstream [slipstream-plugin-android](https://github.com/Mygod/slipstream-plugin-android) project. The goal is to bring similar functionality to dnstc on Android, including DNS resolver scanning and seamless integration with the Shadowsocks app.
 
 #### [SSH Tunnel User Manager (sshtun-user)](https://github.com/net2share/sshtun-user)
 
@@ -98,9 +94,13 @@ A security-focused utility for creating and managing restricted SSH users on Lin
 
 #### [go-corelib](https://github.com/net2share/go-corelib)
 
-Our shared Go library that powers the CLI tools above. It provides OS detection, automatic package manager identification, and beautiful terminal output with consistent styling. Used by dnstm, dnstc, and sshtun-user. Any component or logic shared across multiple projects is abstracted and centralized here.
+Our shared Go library that powers the CLI tools above. It provides OS detection with automatic package manager identification, a terminal UI framework (interactive menus, progress views, styled output) built on bubbletea/lipgloss, and a binary manager for downloading, version tracking, and self-updating binaries. Used by dnstm, dnstc, and sshtun-user. Any component or logic shared across multiple projects is abstracted and centralized here.
 
-#### [Net2Share Website (net2share.github.io)](https://github.com/net2share/net2share.github.io)
+#### [Slipstream Shadowsocks Android Plugin](https://github.com/net2share/slipstream-plugin-android) — _Coming Soon_
+
+A fork of the upstream [slipstream-plugin-android](https://github.com/Mygod/slipstream-plugin-android) project. The goal is to bring similar functionality to dnstc on Android, including DNS resolver scanning and seamless integration with the Shadowsocks app.
+
+#### [Net2Share Website (net2share.github.io)](https://github.com/net2share/net2share.github.io) — _Coming Soon_
 
 The official documentation website for Net2Share, hosted at [net2share.com](https://net2share.com). Built with mkdocs-material, it provides comprehensive guides for setting up and using DNS tunnel infrastructure.
 
@@ -183,26 +183,24 @@ flowchart TB
     L -.->|microsocks| dnstm
 ```
 
-### Client-Side Architecture (Planned)
+### Client-Side Architecture
 
-The client runs inside the restricted network and orchestrates the connection flow. _dnstc and dnst-scanner are currently in development._
+The client runs inside the restricted network and orchestrates the connection flow.
 
 ```mermaid
 flowchart TB
-    subgraph scanner["dnst-scanner (planned)"]
+    subgraph scanner["dnst-scanner"]
         direction TB
         A[ir-resolvers<br/>Raw IP List]
-        S1[Step 1: Basic Scan<br/>Find working resolvers]
-        S2[Step 2: E2E Validation<br/>Test with actual tunnels]
+        S1[Pipeline: Ping → Resolve<br/>→ NS Delegation]
+        S2[E2E Validation<br/>DNSTT / Slipstream]
     end
 
-    subgraph dns_proxy["Local DNS Proxy"]
-        D[Healthy Resolver Pool]
-        MON[Health Monitor]
-    end
-
-    subgraph client["dnstc (planned)"]
-        E[Orchestrator]
+    subgraph client["dnstc"]
+        direction TB
+        E[Daemon / Engine]
+        GW[SOCKS Gateway]
+        DP[DNS Proxy<br/>Health-Aware Upstreams]
     end
 
     subgraph transports["Transport Instances"]
@@ -216,13 +214,13 @@ flowchart TB
 
     A -->|raw IPs| S1
     S1 -->|responding resolvers| S2
-    S2 -->|tunnel-capable resolvers| D
-    MON -->|update pool| D
-    E --> scanner
-    E --> dns_proxy
+    S2 -->|tunnel-capable resolvers| DP
+    E --> GW
+    E --> DP
     E --> transports
-    I -->|SOCKS5| transports
-    transports -->|DNS queries via| D
+    I -->|SOCKS5| GW
+    GW -->|active tunnel| transports
+    transports -->|DNS queries via| DP
 ```
 
 ### Project Dependencies
@@ -237,9 +235,9 @@ flowchart LR
 
     subgraph tools["Management Tools"]
         B[dnstm]
-        B2[dnstc<br/>planned]
+        B2[dnstc]
         C[sshtun-user]
-        D[dnst-scanner<br/>planned]
+        D[dnst-scanner]
     end
 
     subgraph data["Data Sources"]
@@ -257,15 +255,14 @@ flowchart LR
     end
 
     A --> B
-    A -.-> B2
+    A --> B2
     A --> C
     C --> B
-    E -.-> D
-    D -.-> B2
+    E --> D
     F --> B
-    F -.-> B2
+    F --> B2
     G --> B
-    G -.-> B2
+    G --> B2
     H --> B
 ```
 
